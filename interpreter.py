@@ -22,7 +22,7 @@ class SaMInterpreter:
         parts = instruction.split()
         command = parts[0]
 
-        if command == "PUSH":
+        if command == "PUSHIMM":
             value = int(parts[1])
             self.stack.append(value)
         elif command == "POP":
@@ -70,13 +70,36 @@ class SaMInterpreter:
                 else:
                     print("Erro: Divisão por zero")
         elif command == "NOT":
-            a = self.stack.pop()
-            if a == 0:
-                a = 1
-                self.stack.append(a)
+            if len(self.stack) >= 1:
+                a = self.stack.pop()
+                if a == 0:
+                    a = 1
+                    self.stack.append(a)
+                else:
+                    a = 0
+                    self.stack.append(a)
             else:
-                a = 0
-                self.stack.append(a)
+                print("Erro: Não há valores suficientes para a operação NOT")        
+        elif command == "OR":
+            if len(self.stack) >= 2:
+                b = self.stack.pop()
+                a = self.stack.pop()
+                if a == 1 or b == 1:
+                    self.stack.append(1)
+                else:
+                    self.stack.append(0)
+            else:
+                    print("Erro: Não há valores suficientes para a operação OR")
+        elif command == "AND":
+            if len(self.stack) >= 2:
+                b = self.stack.pop()
+                a = self.stack.pop()
+                if a == 1 and b == 1:
+                    self.stack.append(1)
+                else:
+                    self.stack.append(0)
+            else:
+                print("Erro: Não há valores suficientes para a operação AND")
         elif command == "PRINT":
             if self.stack:
                 print(self.stack[-1])  # Imprime o valor no topo da pilha
