@@ -25,6 +25,18 @@ class SaMInterpreter:
         if command == "PUSHIMM":
             value = int(parts[1])
             self.stack.append(value)
+        elif command == "PUSHIMMC":
+            value = ord(parts[1])
+            self.stack.append(value)
+        elif command == "PUSHIND":
+            if len(self.stack) >= 1:
+                index = self.stack.pop()
+                if 0 <= index < len(self.stack):
+                    self.stack.append(self.stack[index])
+                else:
+                    print("Erro: Índice fora do limite da pilha")
+            else:
+                print("Erro: Não há valores suficientes para a operação PUSHIND")
         elif command == "POP":
             if self.stack:
                 self.stack.pop()
@@ -100,6 +112,89 @@ class SaMInterpreter:
                     self.stack.append(0)
             else:
                 print("Erro: Não há valores suficientes para a operação AND")
+        elif command == "GREATER":
+            if len(self.stack) >= 2:
+                b = self.stack.pop()
+                a = self.stack.pop()
+                if a > b:
+                    self.stack.append(1)
+                else:
+                    self.stack.append(0)
+            else:
+                print("Erro: Não há valores suficientes para a operação GREATER")
+        elif command == "LESS":
+            if len(self.stack) >= 2:
+                b = self.stack.pop()
+                a = self.stack.pop()
+                if a < b:
+                    self.stack.append(1)
+                else:
+                    self.stack.append(0)
+            else:
+                print("Erro: Não há valores suficientes para a operação LESS")
+        elif command == "EQUAL":
+            if len(self.stack) >= 2:
+                b = self.stack.pop()
+                a = self.stack.pop()
+                if a == b:
+                    self.stack.append(1)
+                else:
+                    self.stack.append(0)
+            else:
+                print("Erro: Não há valores suficientes para a operação EQUAL")
+        elif command == "ISNIL":
+            if len(self.stack) >= 1:
+                a = self.stack.pop()
+                if a == 0:
+                    self.stack.append(1)
+                else:
+                    self.stack.append(0)
+            else:
+                print("Erro: Não há valores suficientes para a operação ISNIL")
+        elif command == "ISPOS":
+            if len(self.stack) >= 1:
+                a = self.stack.pop()
+                if a > 0:
+                    self.stack.append(1)
+                else:
+                    self.stack.append(0)
+            else:
+                print("Erro: Não há valores suficientes para a operação ISPOS")
+        elif command == "ISNEG":
+            if len(self.stack) >= 1:
+                a = self.stack.pop()
+                if a < 0:
+                    self.stack.append(1)
+                else:
+                    self.stack.append(0)
+            else:
+                print("Erro: Não há valores suficientes para a operação ISNEG")
+        elif command == "CMP":
+            if len(self.stack) >= 2:
+                b = self.stack.pop()
+                a = self.stack.pop()
+                if a == b:
+                    self.stack.append(0)
+                elif a < b:
+                    self.stack.append(-1)
+                else:
+                    self.stack.append(1)
+            else:
+                print("Erro: Não há valores suficientes para a operação CMP")
+        elif command == "DUP":
+            if len(self.stack) >= 1:
+                a = self.stack[-1]
+                self.stack.append(a)
+            else:
+                print("Erro: Não há valores suficientes para a operação DUP")
+        elif command == "SWAP":
+            if len(self.stack) >= 2:
+                a = self.stack.pop()
+                b = self.stack.pop()
+                self.stack.append(a)
+                self.stack.append(b)
+            else:
+                print("Erro: Não há valores suficientes para a operação SWAP")
         elif command == "PRINT":
             if self.stack:
                 print(self.stack[-1])  # Imprime o valor no topo da pilha
