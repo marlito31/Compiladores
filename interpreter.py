@@ -3,15 +3,13 @@ class SaMInterpreter:
        self.stack = []  # Pilha inicial vazia
        self.program = []  # Código do programa (samcode)
        self.pc = 0  # Contador de programa (inicialmente no início)
+       self.fbr = 0 # Contador frame
 
 
    def load_program_from_file(self, filename):
        with open(filename, 'r') as file:
            self.program = [line.strip() for line in file.readlines() if line.strip()]
           
-
-
-
 
    def execute(self):
        while self.pc < len(self.program):
@@ -24,7 +22,6 @@ class SaMInterpreter:
    def process_instruction(self, instruction):
        parts = instruction.split()
        command = parts[0]
-
 
        if command == "PUSH":
            value = int(parts[1])
@@ -73,6 +70,14 @@ class SaMInterpreter:
                    self.stack.append(a % b)
                else:
                    print("Erro: Divisão por zero")
+       elif command == "NOT":
+           a = self.stack.pop()
+           if a == 0:
+               a = 1
+               self.stack.append(a)
+           else:
+               a = 0
+               self.stack.append(a)                           
        elif command == "PRINT":
            if self.stack:
                print(self.stack[-1])  # Imprime o valor no topo da pilha
