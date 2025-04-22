@@ -37,6 +37,24 @@ class SaMInterpreter:
                     print("Erro: Índice fora do limite da pilha")
             else:
                 print("Erro: Não há valores suficientes para a operação PUSHIND")
+        elif command == "STOREIND":
+            if len(self.stack) >= 2:
+                value = self.stack.pop()
+                index = self.stack.pop()
+                if 0 <= index < len(self.stack):
+                    self.stack[index] = value
+                else:
+                    print("Erro: Índice fora do limite da pilha")
+            else:
+                print("Erro: Não há valores suficientes para a operação STOREIND")
+        elif command == "ADDSP":
+            if int(parts[1]) >= 0:
+                value = int(parts[1])
+                while value > 0:
+                    self.stack.append(None)
+                    value -= 1
+            else:
+                print("Erro: Não há argumentos suficientes para a operação ADDSP")            
         elif command == "POP":
             if self.stack:
                 self.stack.pop()
@@ -207,13 +225,15 @@ class SaMInterpreter:
             self.pc = int(
                 parts[1]
             ) - 1  # Atualiza o contador de programa para o valor fornecido
-        elif command == "JUMPIF":
+        elif command == "JUMPC":
             if self.stack and self.stack[-1] == 1:
                 self.pc = int(
                     parts[1]
                 ) - 1  # Salta para o rótulo indicado, se o topo da pilha for 1
             else:
                 print("Erro: JUMPIF não saltou, topo da pilha não é 1")
+        else:
+            print(f"Erro: Instrução desconhecida '{command}'")
 
 
 filename = 'program.sam'
