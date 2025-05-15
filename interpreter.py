@@ -23,8 +23,12 @@ class SaMInterpreter:
             self.pc += 1
             self.process_instruction(instr)
     
-    def is_hexadecimal(s):
-        return bool(re.fullmatch(r'[0-9a-fA-F]+', s))
+    def is_hexadecimal(self,s):
+        try:
+            int(s, 16)
+            return True
+        except (ValueError, TypeError):
+            return False
 
     def process_instruction(self, instruction):
         parts = instruction.split()
@@ -36,6 +40,14 @@ class SaMInterpreter:
                 return
             else:
                 value = int(parts[1])
+                self.stack.append(value)
+                self.sp += 1
+        elif command == "PUSHIMMF":
+            if len(parts) < 2:
+                print("Erro: Não há argumentos suficientes para a operação PUSHIMMF")
+                return
+            else:
+                value = float(parts[1])
                 self.stack.append(value)
                 self.sp += 1
         elif command == "PUSHIMMC":
@@ -52,14 +64,13 @@ class SaMInterpreter:
                 return
             else:
                 value = " ".join(parts[1:])
-                match = re.findall(r'"(.*?)"', value)
+                match = re.match(r'"(.*?)"', value)
                 if match:
-                    string_value = match
+                    string_value = match.group(1)
                     self.memory[self.address] = string_value
                     self.stack.append(self.address)
                     self.sp += 1
                     self.address = hex(int(self.address, 16) + 1)
-                    
                 else:
                     print("Erro: Formato de string inválido")
                     return
@@ -108,6 +119,16 @@ class SaMInterpreter:
                 self.sp -= 1
             else:
                 print("Erro: Pilha vazia")
+                return
+        elif command == "MALLOC":
+            if len(self.stack) >= 1:
+                num = self.stack.pop() + 1
+                array = [None] * num
+                self.memory[self.address] = array
+                self.address = hex(int(self.address, 16) + 1)
+                self.sp -= 1
+            else:
+                print("Erro: Tamanho inválido para alocação")
                 return
         elif command == "ADD":
             if len(self.stack) >= 2:
@@ -292,15 +313,17 @@ class SaMInterpreter:
             else:
                 print("Erro: Não há valores suficientes para a operação SWAP")
                 return
-        elif command == "PRINT":
-            if self.stack:
+        elif command == "WRITE":
+            if self.stack and isinstance(self.stack[-1], int):
                 print(self.stack[-1])  # Imprime o valor no topo da pilha
             else:
-                print("Erro: Pilha vazia")
+                print("Erro: Pilha vazia ou valor não é inteiro")
                 return
         elif command == "WRITESTR":
-            if self.is_hexadecimal(self.stack[self.sp-1]):
+            aux = self.stack[self.sp-1];
+            if self.is_hexadecimal(aux):
                 address = self.stack.pop()
+                self.sp -= 1
                 if address in self.memory:
                     print(self.memory[address])
                 else:
