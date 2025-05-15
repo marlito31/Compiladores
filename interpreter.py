@@ -59,7 +59,9 @@ class SaMInterpreter:
                     value -= 1
             else:
                 print("Erro: Não há argumentos suficientes para a operação ADDSP")
-                return            
+                return
+        elif command == "PUSHSP":
+            self.stack.append(len(self.stack))         
         elif command == "POP":
             if self.stack:
                 self.stack.pop()
