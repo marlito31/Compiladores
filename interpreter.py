@@ -121,7 +121,7 @@ class SaMInterpreter:
                 print("Erro: Pilha vazia")
                 return
         elif command == "MALLOC":
-            if len(self.stack) >= 1:
+            if len(self.stack) >= 1 and isinstance(self.stack[self.sp - 1], int):
                 num = self.stack.pop() + 1
                 array = [None] * num
                 self.memory[self.address] = array
