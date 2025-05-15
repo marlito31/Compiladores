@@ -59,6 +59,7 @@ class SaMInterpreter:
                     self.stack.append(self.address)
                     self.sp += 1
                     self.address = hex(int(self.address, 16) + 1)
+                    
                 else:
                     print("Erro: Formato de string inválido")
                     return
