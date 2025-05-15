@@ -1,3 +1,5 @@
+import re
+
 class SaMInterpreter:
 
     def __init__(self):
@@ -6,6 +8,8 @@ class SaMInterpreter:
         self.pc = 0  # Contador de programa (inicialmente no início)
         self.fbr = 0  # Contador frame
         self.sp = 0  # Contador de pilha
+        self.memory = {}  # Memória para strings
+        self.address = "A"  # Endereço de memória para strings
 
     def load_program_from_file(self, filename):
         with open(filename, 'r') as file:
@@ -18,6 +22,9 @@ class SaMInterpreter:
             instr = self.program[self.pc]
             self.pc += 1
             self.process_instruction(instr)
+    
+    def is_hexadecimal(s):
+        return bool(re.fullmatch(r'[0-9a-fA-F]+', s))
 
     def process_instruction(self, instruction):
         parts = instruction.split()
@@ -39,6 +46,22 @@ class SaMInterpreter:
                 value = ord(parts[1])
                 self.stack.append(value)
                 self.sp += 1
+        elif command == "PUSHIMMSTR":
+            if len(parts) < 2:
+                print("Erro: Não há argumentos suficientes para a operação PUSHIMMSTR")
+                return
+            else:
+                value = " ".join(parts[1:])
+                match = re.findall(r'"(.*?)"', value)
+                if match:
+                    string_value = match
+                    self.memory[self.address] = string_value
+                    self.stack.append(self.address)
+                    self.sp += 1
+                    self.address = hex(int(self.address, 16) + 1)
+                else:
+                    print("Erro: Formato de string inválido")
+                    return
         elif command == "PUSHIND":
             if len(self.stack) >= 1:
                 index = self.stack.pop()
@@ -64,7 +87,7 @@ class SaMInterpreter:
                 print("Erro: Não há valores suficientes para a operação STOREIND")
                 return
         elif command == "ADDSP":
-            if int(parts[1]) >= 0:
+            if int(parts[1]) >= 0 and len(parts) == 2:
                 value = int(parts[1])
                 while value > 0:
                     self.stack.append(None)
@@ -273,6 +296,17 @@ class SaMInterpreter:
                 print(self.stack[-1])  # Imprime o valor no topo da pilha
             else:
                 print("Erro: Pilha vazia")
+                return
+        elif command == "WRITESTR":
+            if self.is_hexadecimal(self.stack[self.sp-1]):
+                address = self.stack.pop()
+                if address in self.memory:
+                    print(self.memory[address])
+                else:
+                    print("Erro: Endereço de memória inválido")
+                    return
+            else:
+                print("Erro: O valor no topo da pilha não é um endereço de memória")
                 return
         elif command == "STOP":
             print("Execução terminada.")
