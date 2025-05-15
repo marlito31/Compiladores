@@ -5,6 +5,7 @@ class SaMInterpreter:
         self.program = []  # Código do programa (samcode)
         self.pc = 0  # Contador de programa (inicialmente no início)
         self.fbr = 0  # Contador frame
+        self.sp = 0  # Contador de pilha
 
     def load_program_from_file(self, filename):
         with open(filename, 'r') as file:
@@ -23,11 +24,21 @@ class SaMInterpreter:
         command = parts[0]
 
         if command == "PUSHIMM":
-            value = int(parts[1])
-            self.stack.append(value)
+            if len(parts) < 2:
+                print("Erro: Não há argumentos suficientes para a operação PUSHIMM")
+                return
+            else:
+                value = int(parts[1])
+                self.stack.append(value)
+                self.sp += 1
         elif command == "PUSHIMMC":
-            value = ord(parts[1])
-            self.stack.append(value)
+            if len(parts) < 2:
+                print("Erro: Não há argumentos suficientes para a operação PUSHIMMC")
+                return
+            else:
+                value = ord(parts[1])
+                self.stack.append(value)
+                self.sp += 1
         elif command == "PUSHIND":
             if len(self.stack) >= 1:
                 index = self.stack.pop()
@@ -43,6 +54,7 @@ class SaMInterpreter:
             if len(self.stack) >= 2:
                 value = self.stack.pop()
                 index = self.stack.pop()
+                self.sp -= 2
                 if 0 <= index < len(self.stack):
                     self.stack[index] = value
                 else:
@@ -56,15 +68,20 @@ class SaMInterpreter:
                 value = int(parts[1])
                 while value > 0:
                     self.stack.append(None)
+                    self.sp += 1
                     value -= 1
             else:
                 print("Erro: Não há argumentos suficientes para a operação ADDSP")
                 return
         elif command == "PUSHSP":
-            self.stack.append(len(self.stack))         
+            self.stack.append(self.sp)
+            self.sp += 1
+        elif command == "POPSP":
+            self.sp = self.stack.pop()         
         elif command == "POP":
             if self.stack:
                 self.stack.pop()
+                self.sp -= 1
             else:
                 print("Erro: Pilha vazia")
                 return
@@ -73,6 +90,7 @@ class SaMInterpreter:
                 b = self.stack.pop()
                 a = self.stack.pop()
                 self.stack.append(a + b)
+                self.sp -= 1
             else:
                 print("Erro: Não há valores suficientes para a operação ADD")
                 return
@@ -81,6 +99,7 @@ class SaMInterpreter:
                 b = self.stack.pop()
                 a = self.stack.pop()
                 self.stack.append(a - b)
+                self.sp -= 1
             else:
                 print("Erro: Não há valores suficientes para a operação SUB")
                 return
@@ -89,6 +108,7 @@ class SaMInterpreter:
                 b = self.stack.pop()
                 a = self.stack.pop()
                 self.stack.append(a * b)
+                self.sp -= 1
             else:
                 print("Erro: Não há valores suficientes para a operação MUL")
                 return
@@ -96,6 +116,7 @@ class SaMInterpreter:
             if len(self.stack) >= 2:
                 b = self.stack.pop()
                 a = self.stack.pop()
+                self.sp -= 1
                 if b != 0:
                     self.stack.append(a // b)
                 else:
@@ -108,6 +129,7 @@ class SaMInterpreter:
             if len(self.stack) >= 2:
                 b = self.stack.pop()
                 a = self.stack.pop()
+                self.sp -= 1
                 if b != 0:
                     self.stack.append(a % b)
                 else:
@@ -129,6 +151,7 @@ class SaMInterpreter:
             if len(self.stack) >= 2:
                 b = self.stack.pop()
                 a = self.stack.pop()
+                self.sp -= 1
                 if a == 1 or b == 1:
                     self.stack.append(1)
                 else:
@@ -140,6 +163,7 @@ class SaMInterpreter:
             if len(self.stack) >= 2:
                 b = self.stack.pop()
                 a = self.stack.pop()
+                self.sp -= 1
                 if a == 1 and b == 1:
                     self.stack.append(1)
                 else:
@@ -151,6 +175,7 @@ class SaMInterpreter:
             if len(self.stack) >= 2:
                 b = self.stack.pop()
                 a = self.stack.pop()
+                self.sp -= 1
                 if a > b:
                     self.stack.append(1)
                 else:
@@ -162,6 +187,7 @@ class SaMInterpreter:
             if len(self.stack) >= 2:
                 b = self.stack.pop()
                 a = self.stack.pop()
+                self.sp -= 1
                 if a < b:
                     self.stack.append(1)
                 else:
@@ -173,6 +199,7 @@ class SaMInterpreter:
             if len(self.stack) >= 2:
                 b = self.stack.pop()
                 a = self.stack.pop()
+                self.sp -= 1   
                 if a == b:
                     self.stack.append(1)
                 else:
@@ -214,6 +241,7 @@ class SaMInterpreter:
             if len(self.stack) >= 2:
                 b = self.stack.pop()
                 a = self.stack.pop()
+                self.sp -= 1
                 if a == b:
                     self.stack.append(0)
                 elif a < b:
@@ -227,6 +255,7 @@ class SaMInterpreter:
             if len(self.stack) >= 1:
                 a = self.stack[-1]
                 self.stack.append(a)
+                self.sp += 1
             else:
                 print("Erro: Não há valores suficientes para a operação DUP")
                 return
