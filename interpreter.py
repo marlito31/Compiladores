@@ -37,7 +37,7 @@ class SaMInterpreter:
         if command == "PUSHIMM":
             if len(parts) < 2:
                 print("Erro: Não há argumentos suficientes para a operação PUSHIMM")
-                return
+                exit()
             else:
                 value = int(parts[1])
                 self.stack.append(value)
@@ -45,7 +45,7 @@ class SaMInterpreter:
         elif command == "PUSHIMMF":
             if len(parts) < 2:
                 print("Erro: Não há argumentos suficientes para a operação PUSHIMMF")
-                return
+                exit()
             else:
                 value = float(parts[1])
                 self.stack.append(value)
@@ -53,7 +53,7 @@ class SaMInterpreter:
         elif command == "PUSHIMMC":
             if len(parts) < 2:
                 print("Erro: Não há argumentos suficientes para a operação PUSHIMMC")
-                return
+                exit()
             else:
                 value = ord(parts[1])
                 self.stack.append(value)
@@ -61,7 +61,7 @@ class SaMInterpreter:
         elif command == "PUSHIMMSTR":
             if len(parts) < 2:
                 print("Erro: Não há argumentos suficientes para a operação PUSHIMMSTR")
-                return
+                exit()
             else:
                 value = " ".join(parts[1:])
                 match = re.match(r'"(.*?)"', value)
@@ -73,7 +73,7 @@ class SaMInterpreter:
                     self.address = hex(int(self.address, 16) + 1)
                 else:
                     print("Erro: Formato de string inválido")
-                    return
+                    exit()
         elif command == "PUSHIND":
             if len(self.stack) >= 1:
                 index = self.stack.pop()
@@ -81,10 +81,10 @@ class SaMInterpreter:
                     self.stack.append(self.stack[index])
                 else:
                     print("Erro: Índice fora do limite da pilha")
-                    return
+                    exit()
             else:
                 print("Erro: Não há valores suficientes para a operação PUSHIND")
-                return
+                exit()
         elif command == "STOREIND":
             if len(self.stack) >= 2:
                 value = self.stack.pop()
@@ -94,10 +94,10 @@ class SaMInterpreter:
                     self.stack[index] = value
                 else:
                     print("Erro: Índice fora do limite da pilha")
-                    return
+                    exit()
             else:
                 print("Erro: Não há valores suficientes para a operação STOREIND")
-                return
+                exit()
         elif command == "ADDSP":
             if int(parts[1]) >= 0 and len(parts) == 2:
                 value = int(parts[1])
@@ -107,10 +107,14 @@ class SaMInterpreter:
                     value -= 1
             else:
                 print("Erro: Não há argumentos suficientes para a operação ADDSP")
-                return
+                exit()
         elif command == "PUSHSP":
-            self.stack.append(self.sp)
-            self.sp += 1
+            if len(parts) == 1:
+                self.stack.append(self.sp)
+                self.sp += 1
+            else:
+                print("Erro")
+                exit()
         elif command == "POPSP":
             self.sp = self.stack.pop()         
         elif command == "POP":
@@ -119,7 +123,7 @@ class SaMInterpreter:
                 self.sp -= 1
             else:
                 print("Erro: Pilha vazia")
-                return
+                exit()
         elif command == "PUSHOFF":
             if len(parts) == 2 and isinstance(parts[1],int):
                 aux = self.fbr + int(parts[1])
@@ -127,7 +131,7 @@ class SaMInterpreter:
                 self.sp += 1
             else:
                 print("Erro")
-                return
+                exit()
         elif command == "STOREOFF":
             if len(parts) == 2 and isinstance(parts[1],int):
                 num = self.stack.pop()
@@ -135,7 +139,21 @@ class SaMInterpreter:
                 self.sp -= 1
             else:
                 print("Erro")
-                return
+                exit()
+        elif command == "PUSHFBR":
+            if len(parts) == 1:
+                self.stack.append(self.fbr)
+                self.sp += 1
+            else:
+                print("Erro")
+                exit()
+        elif command == "POPFBR":
+            if len(parts) == 1:
+                self.fbr = self.stack.pop()
+                self.sp -= 1
+            else:
+                print("Erro")
+                exit()
         elif command == "LINK":
             if len(parts) == 1:
                 self.stack.append(self.fbr)
@@ -143,7 +161,7 @@ class SaMInterpreter:
                 self.fbr = self.sp - 1
             else:
                 print("Erro")
-                return
+                exit()
         elif command == "MALLOC":
             if len(self.stack) >= 1 and isinstance(self.stack[self.sp - 1], int):
                 num = self.stack.pop() + 1
@@ -153,7 +171,7 @@ class SaMInterpreter:
                 self.sp -= 1
             else:
                 print("Erro: Tamanho inválido para alocação")
-                return
+                exit()
         elif command == "ADD":
             if len(self.stack) >= 2:
                 b = self.stack.pop()
@@ -162,7 +180,7 @@ class SaMInterpreter:
                 self.sp -= 1
             else:
                 print("Erro: Não há valores suficientes para a operação ADD")
-                return
+                exit()
         elif command == "SUB":
             if len(self.stack) >= 2:
                 b = self.stack.pop()
@@ -171,7 +189,7 @@ class SaMInterpreter:
                 self.sp -= 1
             else:
                 print("Erro: Não há valores suficientes para a operação SUB")
-                return
+                exit()
         elif command == "TIMES":
             if len(self.stack) >= 2:
                 b = self.stack.pop()
@@ -180,7 +198,7 @@ class SaMInterpreter:
                 self.sp -= 1
             else:
                 print("Erro: Não há valores suficientes para a operação MUL")
-                return
+                exit()
         elif command == "DIV":
             if len(self.stack) >= 2:
                 b = self.stack.pop()
@@ -190,10 +208,10 @@ class SaMInterpreter:
                     self.stack.append(a // b)
                 else:
                     print("Erro: Divisão por zero")
-                    return
+                    exit()
             else:
                 print("Erro: Não há valores suficientes para a operação DIV")
-                return
+                exit()
         elif command == "MOD":
             if len(self.stack) >= 2:
                 b = self.stack.pop()
@@ -203,7 +221,7 @@ class SaMInterpreter:
                     self.stack.append(a % b)
                 else:
                     print("Erro: Divisão por zero")
-                    return
+                    exit()
         elif command == "NOT":
             if len(self.stack) >= 1:
                 a = self.stack.pop()
@@ -215,7 +233,7 @@ class SaMInterpreter:
                     self.stack.append(a)
             else:
                 print("Erro: Não há valores suficientes para a operação NOT")
-                return        
+                exit()        
         elif command == "OR":
             if len(self.stack) >= 2:
                 b = self.stack.pop()
@@ -227,7 +245,7 @@ class SaMInterpreter:
                     self.stack.append(0)
             else:
                 print("Erro: Não há valores suficientes para a operação OR")
-                return
+                exit()
         elif command == "AND":
             if len(self.stack) >= 2:
                 b = self.stack.pop()
@@ -239,7 +257,7 @@ class SaMInterpreter:
                     self.stack.append(0)
             else:
                 print("Erro: Não há valores suficientes para a operação AND")
-                return
+                exit()
         elif command == "GREATER":
             if len(self.stack) >= 2:
                 b = self.stack.pop()
@@ -251,7 +269,7 @@ class SaMInterpreter:
                     self.stack.append(0)
             else:
                 print("Erro: Não há valores suficientes para a operação GREATER")
-                return
+                exit()
         elif command == "LESS":
             if len(self.stack) >= 2:
                 b = self.stack.pop()
@@ -263,7 +281,7 @@ class SaMInterpreter:
                     self.stack.append(0)
             else:
                 print("Erro: Não há valores suficientes para a operação LESS")
-                return
+                exit()
         elif command == "EQUAL":
             if len(self.stack) >= 2:
                 b = self.stack.pop()
@@ -275,7 +293,7 @@ class SaMInterpreter:
                     self.stack.append(0)
             else:
                 print("Erro: Não há valores suficientes para a operação EQUAL")
-                return
+                exit()
         elif command == "ISNIL":
             if len(self.stack) >= 1:
                 a = self.stack.pop()
@@ -285,7 +303,7 @@ class SaMInterpreter:
                     self.stack.append(0)
             else:
                 print("Erro: Não há valores suficientes para a operação ISNIL")
-                return
+                exit()
         elif command == "ISPOS":
             if len(self.stack) >= 1:
                 a = self.stack.pop()
@@ -295,7 +313,7 @@ class SaMInterpreter:
                     self.stack.append(0)
             else:
                 print("Erro: Não há valores suficientes para a operação ISPOS")
-                return
+                exit()
         elif command == "ISNEG":
             if len(self.stack) >= 1:
                 a = self.stack.pop()
@@ -305,7 +323,7 @@ class SaMInterpreter:
                     self.stack.append(0)
             else:
                 print("Erro: Não há valores suficientes para a operação ISNEG")
-                return
+                exit()
         elif command == "CMP":
             if len(self.stack) >= 2:
                 b = self.stack.pop()
@@ -319,7 +337,7 @@ class SaMInterpreter:
                     self.stack.append(1)
             else:
                 print("Erro: Não há valores suficientes para a operação CMP")
-                return
+                exit()
         elif command == "DUP":
             if len(self.stack) >= 1:
                 a = self.stack[-1]
@@ -327,7 +345,7 @@ class SaMInterpreter:
                 self.sp += 1
             else:
                 print("Erro: Não há valores suficientes para a operação DUP")
-                return
+                exit()
         elif command == "SWAP":
             if len(self.stack) >= 2:
                 a = self.stack.pop()
@@ -336,13 +354,13 @@ class SaMInterpreter:
                 self.stack.append(b)
             else:
                 print("Erro: Não há valores suficientes para a operação SWAP")
-                return
+                exit()
         elif command == "WRITE":
             if self.stack and isinstance(self.stack[-1], int):
                 print(self.stack[-1])  # Imprime o valor no topo da pilha
             else:
                 print("Erro: Pilha vazia ou valor não é inteiro")
-                return
+                exit()
         elif command == "WRITESTR":
             aux = self.stack[self.sp-1];
             if self.is_hexadecimal(aux):
@@ -352,13 +370,13 @@ class SaMInterpreter:
                     print(self.memory[address])
                 else:
                     print("Erro: Endereço de memória inválido")
-                    return
+                    exit()
             else:
                 print("Erro: O valor no topo da pilha não é um endereço de memória")
-                return
+                exit()
         elif command == "STOP":
             print("Execução terminada.")
-            return
+            exit()
         elif command == "JUMP":
             self.pc = int(
                 parts[1]
@@ -370,10 +388,10 @@ class SaMInterpreter:
                 ) - 1  # Salta para o rótulo indicado, se o topo da pilha for 1
             else:
                 print("Erro: JUMPIF não saltou, topo da pilha não é 1")
-                return
+                exit()
         else:
             print(f"Erro: Instrução desconhecida '{command}'")
-            return
+            exit()
 
 
 filename = 'program.sam'
