@@ -120,6 +120,30 @@ class SaMInterpreter:
             else:
                 print("Erro: Pilha vazia")
                 return
+        elif command == "PUSHOFF":
+            if len(parts) == 2 and isinstance(parts[1],int):
+                aux = self.fbr + int(parts[1])
+                self.stack[self.sp] = self.stack[aux]
+                self.sp += 1
+            else:
+                print("Erro")
+                return
+        elif command == "STOREOFF":
+            if len(parts) == 2 and isinstance(parts[1],int):
+                num = self.stack.pop()
+                self.stack[self.fbr + int(parts[1])] = num
+                self.sp -= 1
+            else:
+                print("Erro")
+                return
+        elif command == "LINK":
+            if len(parts) == 1:
+                self.stack.append(self.fbr)
+                self.sp += 1
+                self.fbr = self.sp - 1
+            else:
+                print("Erro")
+                return
         elif command == "MALLOC":
             if len(self.stack) >= 1 and isinstance(self.stack[self.sp - 1], int):
                 num = self.stack.pop() + 1
