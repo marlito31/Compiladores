@@ -116,9 +116,13 @@ class SaMInterpreter:
                 print("Erro")
                 exit()
         elif command == "POPSP":
-            self.sp = self.stack.pop()         
+            if len(parts) == 1 and len(self.stack) > 0:
+                self.sp = self.stack.pop()
+            else:
+                print("Erro")
+                exit()
         elif command == "POP":
-            if self.stack:
+            if self.stack and len(parts) == 1:
                 self.stack.pop()
                 self.sp -= 1
             else:
