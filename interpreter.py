@@ -435,6 +435,8 @@ class SaMInterpreter:
                 else:
                     print(f"Erro: Rótulo '{parts[1]}' não encontrado")
                     exit()
+            else:
+                return
         elif ':' in command:
             return
         else:
