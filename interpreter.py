@@ -18,6 +18,18 @@ class SaMInterpreter:
                 line.strip() for line in file.readlines() if line.strip()
             ]
 
+    def analyse_labels(self):
+        for line in self.program:
+            if ':' in line:
+                label = line.split(':')[0].strip()
+                if label not in self.labels:
+                    self.labels[label] = self.pc 
+                else:
+                    print(f"Erro: Rótulo '{label}' já definido")
+                    exit()
+            self.pc += 1    
+        self.pc = 0
+        
     def execute(self):
         while self.pc < len(self.program):
             instr = self.program[self.pc]
@@ -108,7 +120,7 @@ class SaMInterpreter:
                 print("Erro: Não há valores suficientes para a operação STOREIND")
                 exit()
         elif command == "ADDSP":
-            if int(parts[1]) >= 0 and len(parts) == 2:
+            if len(parts) == 2:
                 value = int(parts[1])
                 while value > 0:
                     self.stack.append(None)
@@ -122,13 +134,13 @@ class SaMInterpreter:
                 self.stack.append(self.sp)
                 self.sp += 1
             else:
-                print("Erro")
+                print("Erro :  PUSHSP")
                 exit()
         elif command == "POPSP":
             if len(parts) == 1 and len(self.stack) > 0:
                 self.sp = self.stack.pop()
             else:
-                print("Erro")
+                print("Erro NO POPSP")
                 exit()
         elif command == "POP":
             if self.stack and len(parts) == 1:
@@ -138,34 +150,35 @@ class SaMInterpreter:
                 print("Erro: Pilha vazia")
                 exit()
         elif command == "PUSHOFF":
-            if len(parts) == 2 and isinstance(parts[1],int):
+            if len(parts) == 2 and parts[1].isdigit():
                 aux = self.fbr + int(parts[1])
+                self.stack.append(None)
                 self.stack[self.sp] = self.stack[aux]
                 self.sp += 1
             else:
-                print("Erro")
+                print("Erro NO PUSHOFF")
                 exit()
         elif command == "STOREOFF":
-            if len(parts) == 2 and isinstance(parts[1],int):
+            if len(parts) == 2:
                 num = self.stack.pop()
                 self.stack[self.fbr + int(parts[1])] = num
                 self.sp -= 1
             else:
-                print("Erro")
+                print("Erro NO STOREOFF")
                 exit()
         elif command == "PUSHFBR":
             if len(parts) == 1:
                 self.stack.append(self.fbr)
                 self.sp += 1
             else:
-                print("Erro")
+                print("Erro NO PUSHFBR")
                 exit()
         elif command == "POPFBR":
             if len(parts) == 1:
                 self.fbr = self.stack.pop()
                 self.sp -= 1
             else:
-                print("Erro")
+                print("Erro NO POPFBR")
                 exit()
         elif command == "LINK":
             if len(parts) == 1:
@@ -173,7 +186,7 @@ class SaMInterpreter:
                 self.sp += 1
                 self.fbr = self.sp - 1
             else:
-                print("Erro")
+                print("Erro NO LINK")
                 exit()
         elif command == "MALLOC":
             if len(self.stack) >= 1 and isinstance(self.stack[self.sp - 1], int):
@@ -396,25 +409,24 @@ class SaMInterpreter:
                 print("Erro: Não há argumentos suficientes para a operação JUMP")
                 exit()
             else:
-                if isinstance(parts[1], int):
+                if parts[1] in self.labels:
+                    self.pc = self.labels[parts[1]]
+                elif parts[1].isdigit():
                     self.pc = int(parts[1]) - 1
                 else:
-                    label = parts[1]
-                    if label in self.labels:
-                        self.pc = self.labels[label] + 1
-                    else:
-                        print(f"Erro: Rótulo '{label}' não encontrado")
-                        exit()
+                    print(f"Erro: Rótulo '{parts[1]}' não encontrado")
+                    exit()
         elif command == "JUMPC":
-            if self.stack and self.stack[-1] == 1:
-                self.pc = int(
-                    parts[1]
-                ) - 1  # Salta para o rótulo indicado, se o topo da pilha for 1
-            else:
-                print("Erro: JUMPIF não saltou, topo da pilha não é 1")
-                exit()
-        #elif ':' in command:
-        #    self.labels[command[:-1]] = self.pc - 1
+            if self.stack[self.sp - 1] != 0 :
+                if parts[1] in self.labels:
+                    self.pc = self.labels[parts[1]]
+                elif parts[1].isdigit():
+                    self.pc = int(parts[1]) - 1
+                else:
+                    print(f"Erro: Rótulo '{parts[1]}' não encontrado")
+                    exit()
+        elif ':' in command:
+            return
         else:
             print(f"Erro: Instrução desconhecida '{command}'")
             exit()
@@ -423,4 +435,5 @@ class SaMInterpreter:
 filename = 'program.sam'
 interpreter = SaMInterpreter()
 interpreter.load_program_from_file(filename)
+interpreter.analyse_labels()
 interpreter.execute()
