@@ -8,7 +8,8 @@ class SaMInterpreter:
         self.pc = 0  # Contador de programa (inicialmente no início)
         self.fbr = 0  # Contador frame
         self.sp = 0  # Contador de pilha
-        self.memory = {}  # Memória para strings
+        self.memory = {}  # Memória para strings e arrays
+        self.labels = {}  # Dicionário para armazenar rótulos
         self.address = "A"  # Endereço de memória para strings
 
     def load_program_from_file(self, filename):
@@ -85,6 +86,14 @@ class SaMInterpreter:
             else:
                 print("Erro: Não há valores suficientes para a operação PUSHIND")
                 exit()
+        elif command == "PUSHIMMPA":
+            if len(parts) < 2:
+                print("Erro: Não há argumentos suficientes para a operação PUSHIMMPA")
+                exit()
+            else:
+                value = int(parts[1])
+                self.stack.append(value)
+                self.sp += 1
         elif command == "STOREIND":
             if len(self.stack) >= 2:
                 value = self.stack.pop()
@@ -361,7 +370,8 @@ class SaMInterpreter:
                 exit()
         elif command == "WRITE":
             if self.stack and isinstance(self.stack[-1], int):
-                print(self.stack[-1])  # Imprime o valor no topo da pilha
+                print(self.stack.pop())  
+                self.sp -= 1
             else:
                 print("Erro: Pilha vazia ou valor não é inteiro")
                 exit()
@@ -382,9 +392,19 @@ class SaMInterpreter:
             print("Execução terminada.")
             exit()
         elif command == "JUMP":
-            self.pc = int(
-                parts[1]
-            ) - 1  # Atualiza o contador de programa para o valor fornecido
+            if len(parts) < 2:
+                print("Erro: Não há argumentos suficientes para a operação JUMP")
+                exit()
+            else:
+                if isinstance(parts[1], int):
+                    self.pc = int(parts[1]) - 1
+                else:
+                    label = parts[1]
+                    if label in self.labels:
+                        self.pc = self.labels[label] + 1
+                    else:
+                        print(f"Erro: Rótulo '{label}' não encontrado")
+                        exit()
         elif command == "JUMPC":
             if self.stack and self.stack[-1] == 1:
                 self.pc = int(
@@ -393,6 +413,8 @@ class SaMInterpreter:
             else:
                 print("Erro: JUMPIF não saltou, topo da pilha não é 1")
                 exit()
+        #elif ':' in command:
+        #    self.labels[command[:-1]] = self.pc - 1
         else:
             print(f"Erro: Instrução desconhecida '{command}'")
             exit()
