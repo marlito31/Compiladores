@@ -121,11 +121,18 @@ class SaMInterpreter:
                 exit()
         elif command == "ADDSP":
             if len(parts) == 2:
-                value = int(parts[1])
-                while value > 0:
-                    self.stack.append(None)
-                    self.sp += 1
-                    value -= 1
+                n = int(parts[1])
+                if n > 0:
+                    while n > 0:
+                        self.stack.append(0)
+                        n -= 1
+                        self.sp += 1
+                else:
+                    n = int(parts[1])
+                    while n < 0:
+                        self.stack.pop()
+                        n += 1
+                        self.sp -= 1
             else:
                 print("Erro: Não há argumentos suficientes para a operação ADDSP")
                 exit()
@@ -152,7 +159,7 @@ class SaMInterpreter:
         elif command == "PUSHOFF":
             if len(parts) == 2 and parts[1].isdigit():
                 aux = self.fbr + int(parts[1])
-                self.stack.append(None)
+                self.stack.append(0)
                 self.stack[self.sp] = self.stack[aux]
                 self.sp += 1
             else:
@@ -323,6 +330,7 @@ class SaMInterpreter:
         elif command == "ISNIL":
             if len(self.stack) >= 1:
                 a = self.stack.pop()
+                self.sp -= 1
                 if a == 0:
                     self.stack.append(1)
                 else:
@@ -418,6 +426,8 @@ class SaMInterpreter:
                     exit()
         elif command == "JUMPC":
             if self.stack[self.sp - 1] != 0 :
+                self.stack.pop()
+                self.sp -= 1
                 if parts[1] in self.labels:
                     self.pc = self.labels[parts[1]]
                 elif parts[1].isdigit():
