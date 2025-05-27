@@ -330,7 +330,6 @@ class SaMInterpreter:
         elif command == "ISNIL":
             if len(self.stack) >= 1:
                 a = self.stack.pop()
-                self.sp -= 1
                 if a == 0:
                     self.stack.append(1)
                 else:
@@ -425,9 +424,9 @@ class SaMInterpreter:
                     print(f"Erro: Rótulo '{parts[1]}' não encontrado")
                     exit()
         elif command == "JUMPC":
-            if self.stack[self.sp - 1] != 0 :
-                self.stack.pop()
-                self.sp -= 1
+            aux = self.stack.pop()
+            self.sp -= 1
+            if aux != 0 :
                 if parts[1] in self.labels:
                     self.pc = self.labels[parts[1]]
                 elif parts[1].isdigit():
