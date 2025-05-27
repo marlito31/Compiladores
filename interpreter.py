@@ -157,7 +157,7 @@ class SaMInterpreter:
                 print("Erro: Pilha vazia")
                 exit()
         elif command == "PUSHOFF":
-            if len(parts) == 2 and parts[1].isdigit():
+            if len(parts) == 2:
                 aux = self.fbr + int(parts[1])
                 self.stack.append(0)
                 self.stack[self.sp] = self.stack[aux]
@@ -436,6 +436,34 @@ class SaMInterpreter:
                     exit()
             else:
                 return
+        elif command == "JSR":
+            if len(parts) < 2:
+                print("Erro: Não há argumentos suficientes para a operação JSR")
+                exit()
+            else:
+                if parts[1] in self.labels:
+                    self.stack.append(self.pc)
+                    self.sp += 1
+                    self.pc = self.labels[parts[1]]
+                elif parts[1].isdigit():
+                    self.stack.append(int(parts[1]) - 1)
+                    self.sp += 1
+                    self.pc = int(parts[1]) - 1
+                else:
+                    print(f"Erro: Rótulo '{parts[1]}' não encontrado")
+                    exit()
+        elif command == "JUMPIND":
+            if len(self.stack) >= 1:
+                index = self.stack.pop()
+                self.sp -= 1
+                if isinstance(index, int) and 0 <= index < len(self.program):
+                    self.pc = index
+                else:
+                    print("Erro: Índice fora do limite do programa")
+                    exit()
+            else:
+                print("Erro: Não há valores suficientes para a operação JUMPIND")
+                exit()
         elif ':' in command:
             return
         else:
