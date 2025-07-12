@@ -34,15 +34,12 @@ def lexer(source_code):
 
     tokens = []
     line_number = 1
-    col_number = 1
 
     for match in compiled_regex.finditer(source_code):
         token_type = match.lastgroup
         lexeme = match.group(token_type)
 
         # Atualiza posição antes de tratar o token
-        start_col = col_number
-        col_number += len(lexeme)
 
         if token_type == 'NEWLINE':
             line_number += 1
@@ -51,7 +48,7 @@ def lexer(source_code):
         elif token_type == 'WHITESPACE':
             continue
         elif token_type == 'UNKNOWN':
-            print(f"[Erro léxico] Caractere inválido '{lexeme}' na linha {line_num}, coluna {start_col}")
+            print(f"[Erro léxico] Caractere inválido '{lexeme}' na linha {line_number}")
             continue
 
         # Se for IDENTIFIER, verificar se é palavra-chave
@@ -62,7 +59,6 @@ def lexer(source_code):
             'type': token_type,
             'value': lexeme,
             'line': line_number,
-            'column': start_col
         })
 
     return tokens
@@ -71,9 +67,13 @@ def read_file(filename):
     with open(filename, 'r', encoding='utf-8') as file:
         return file.read()
 
+def write_token(tokens, filename):
+    with open(filename, 'w', encoding='utf-8') as file:
+        for token in tokens:
+            file.write(f"{token}\n")
+
 source_code = read_file('teste.ptbr')
 
 tokens = lexer(source_code)
 
-for token in tokens:
-    print(token)
+write_token(tokens, "tokens.txt")
