@@ -49,7 +49,7 @@ def lexer(source_code):
             continue
         elif token_type == 'UNKNOWN':
             print(f"[Erro léxico] Caractere inválido '{lexeme}' na linha {line_number}")
-            continue
+            exit()
 
         # Se for IDENTIFIER, verificar se é palavra-chave
         if token_type == 'IDENTIFIER' and lexeme in keywords:

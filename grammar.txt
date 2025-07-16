@@ -1,0 +1,15 @@
+programa ==> definicao|definicao_funcao|comando
+
+definição ==> tipo IDENTIFIER DELIMITER
+
+tipo ==> INT|REAL|CHAR
+
+definicao_funcao ==> DEF IDENTIFIER 
+
+comando ==> atribuicao|condicional|repeticao|
+
+condicional ==> IF DELIMITER expressao DELIMITER DELIMITER bloco DELIMITER elif
+
+elif ==> ELIF DELIMITER expressao DELIMITER|ENDIF
+
+atribuição ==> IDENTIFIER ATTRIBUTION DELIMITER
