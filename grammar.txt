@@ -1,15 +1,41 @@
-programa ==> definicao|definicao_funcao|comando
+programa -> ComandoLista
 
-definição ==> tipo IDENTIFIER DELIMITER
+ComandoLista -> Comando ComandoLista | ε
 
-tipo ==> INT|REAL|CHAR
+Comando -> Condicional | Repeticao | Funcao_Def | Definicao | Atribuicao
 
-definicao_funcao ==> DEF IDENTIFIER 
+Condicional -> IF Expressao THEN LCHAVE ComandoLista RCHAVE Else_Lista
 
-comando ==> atribuicao|condicional|repeticao|
+Else_Lista -> ELSE LCHAVE ComandoLista RCHAVE | ε
 
-condicional ==> IF DELIMITER expressao DELIMITER DELIMITER bloco DELIMITER elif
+Repeticao -> WHILE Expressao LCHAVE ComandoLista RCHAVE
 
-elif ==> ELIF DELIMITER expressao DELIMITER|ENDIF
+Funcao_Def -> DEF IDENTIFIER LPARENT ComandoLista RPARENT 
 
-atribuição ==> IDENTIFIER ATTRIBUTION DELIMITER
+Definicao -> Tipo IDENTIFIER DELIMITER_LIN
+
+tipo -> INT | REAL | CHAR
+
+Atribuicao -> IDENTIFIER ATTRIBUTION Expressao DELIMITER_LIN
+
+Expressao -> ExpressaoOR
+
+ExpressaoOU -> ExpressaoAND ExpressaoOULinha
+
+ExpressaoOULinha -> OR ExpressaoAND ExpressaoOULinha | ε
+
+ExpressaoAND -> ExpressaoNOT ExpressaoANDLinha
+
+ExpressaoANDLinha -> AND ExpressaoNOT ExpressaoANDLinha | ε
+
+ExpressaoNOT -> NOT ExpressaoNOt | ExpressaoRelacional
+
+ExpressaoRelacional → ExpressaoAritmetica ExpressaoRelacionalLinha
+
+ExpressaoRelacionalLinha → OPERATOR_COMP ExpressaoAritmetica | ε
+
+ExpressaoAritmetica -> TermoAritmetico ExpressaoAritLinha
+
+ExpressaoAritLinha -> OPERATOR_ARIT TermoAritmetico ExpressaoAritLinha | ε
+
+FatorAritmetico → LPARENT ExpressaoRelacional RPARENT | IDENTIFIER | NUMBER | REALNUMBER
