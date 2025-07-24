@@ -102,14 +102,6 @@ def compute_follow(productions, start_symbol, first):
                             changed = True
     return follow
 
-def save_sets_to_file(first, follow, filename='first_follow.txt'):
-    with open(filename, 'w', encoding='utf-8') as f:
-        f.write("Conjuntos FIRST:\n")
-        for nt in sorted(first.keys()):
-            f.write(f"{nt}: {{ {', '.join(sorted(first[nt]))} }}\n")
-        f.write("\nConjuntos FOLLOW:\n")
-        for nt in sorted(follow.keys()):
-            f.write(f"{nt}: {{ {', '.join(sorted(follow[nt]))} }}\n")
 
 def is_LL1(productions, first, follow):
     for nt in productions:
@@ -146,10 +138,6 @@ def is_LL1(productions, first, follow):
 if __name__ == '__main__':
     first = compute_first(productions)
     follow = compute_follow(productions, start_symbol, first)
-    save_sets_to_file(first, follow)
-
-    print("Conjuntos FIRST e FOLLOW salvos em 'first_follow.txt'.")
-    print()
 
     if is_LL1(productions, first, follow):
         print("A gramática É LL(1).")
