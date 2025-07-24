@@ -4,7 +4,7 @@ a <- 1;
 b <- 2;
 a + b;
 a-b;
-a@b;
+a*b;
 a/b;
 
 Se a < b Então a <- a + 1 Senão a <- b;
