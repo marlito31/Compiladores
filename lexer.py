@@ -66,11 +66,28 @@ def lexer(source_code):
 def read_file(filename):
     with open(filename, 'r', encoding='utf-8') as file:
         return file.read()
-
+"""
 def write_token(tokens, filename):
     with open(filename, 'w', encoding='utf-8') as file:
         for token in tokens:
             file.write(f"{token}\n")
+"""
+def write_token(tokens, filename):
+    token_list = []
+
+    for token in tokens:
+        tipo = token['type']
+        valor = token['value']
+
+        # Mapeia DELIMITER ';' para DELIMITER_LIN
+        if tipo == 'DELIMITER' and valor == ';':
+            tipo = 'DELIMITER_LIN'
+
+        token_list.append((tipo, valor))
+
+    with open(filename, 'w', encoding='utf-8') as file:
+        file.write(str(token_list))  # salva a lista inteira como uma string
+
 
 source_code = read_file('teste.ptbr')
 
